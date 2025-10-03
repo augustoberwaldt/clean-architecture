@@ -4,30 +4,36 @@ package com.example.entrypoint.event;
 import com.example.application.usecase.sale.ConsumeSaleItemSaleUseCase;
 import com.example.domain.model.AddSaleItem;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.DependsOn;
+import org.apache.kafka.common.TopicPartition;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
+import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
+import org.springframework.kafka.listener.DefaultErrorHandler;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.context.annotation.Bean;
+import org.springframework.kafka.annotation.EnableKafka;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
+import org.springframework.kafka.core.ConsumerFactory;
+import org.springframework.util.backoff.FixedBackOff;
 
-@DependsOn("cassandraMigrationRunner")
 @RequiredArgsConstructor
+@EnableKafka
 @Component
 public class SaleKafkaConsumer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SaleKafkaConsumer.class);
-
+    private static final String TOPIC_DLQ_NAME = "adicionar-item-venda-dlq";
     private static final String TOPIC_NAME = "adicionar-item-venda";
 
     private final ConsumeSaleItemSaleUseCase consumeSaleItemSaleUseCase;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    @Value("${spring.kafka.consumer.group-id")
-    private String groupId;
-
-    @KafkaListener(topics = TOPIC_NAME, groupId = "${spring.kafka.consumer.group-id}")
+    @KafkaListener(topics = TOPIC_NAME, groupId = "${spring.kafka.consumer.group-id}", containerFactory = "kafkaListenerContainerFactory")
     public void consume(AddSaleItem addSaleItem) {
-
-        consumeSaleItemSaleUseCase.execute(addSaleItem);
+        try {
+            consumeSaleItemSaleUseCase.execute(addSaleItem);
+        } catch (Exception e) {
+            throw e;
+        }
     }
 }

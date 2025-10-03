@@ -15,7 +15,7 @@ public class SearchCustomerUseCase {
 
     private static final String CUSTOMER_NOT_FOUND = "Cliente não encontrado.";
 
-    public SearchCustomerUseCase(CustomerImpRepository repository) {
+    public SearchCustomerUseCase(CustomerRepository repository) {
         this.repository = repository;
     }
 

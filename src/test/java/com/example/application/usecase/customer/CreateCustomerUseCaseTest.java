@@ -16,7 +16,7 @@ class CreateCustomerUseCaseTest {
     void execute() {
         CustomerRepository repository = mock(CustomerRepository.class);
         CreateCustomerUseCase useCase = new CreateCustomerUseCase(repository);
-        Customer input = CustomerStub.getCustomer();
+        Customer input = CustomerStub.getCustomer().build();
         when(repository.save(input)).thenReturn(input);
 
         Customer result = useCase.execute(input);

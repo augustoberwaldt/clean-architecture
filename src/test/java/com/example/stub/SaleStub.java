@@ -10,9 +10,7 @@ public class SaleStub {
             .id("sale-123")
             .clientId("cust-789")
             .totalValue(20.0)
-            .items(Collections.singletonList(SaleItemStub.getSaleItem()))
+            .items(Collections.singletonList(SaleItemStub.getSaleItem().build()))
             .build();
     }
 }
-
-
